@@ -861,7 +861,7 @@ elif page == "Query Assistant":
     st.sidebar.title("RAG Chatbot")  # Keep Chatbot title on the sidebar only in this page
 
         # Define the calculate_metrics function
-    def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response)
+    def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
             
             # Optional BLEU score for additional insight
             bleu_score = sentence_bleu([ground_truth_response.split()], generated_response.split())
