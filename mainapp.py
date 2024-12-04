@@ -860,43 +860,29 @@ elif page == "Query Assistant":
     st.title("Query Assistant")
     st.sidebar.title("RAG Chatbot")  # Keep Chatbot title on the sidebar only in this page
 
-
-# Assuming these are functions or methods available in your codebase:
-# from your_module import context_recall, faithfulness
-
-def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
-    # Context Recall
-    recall = context_recall(ground_truth_context, retrieved_context)
-    
-    # Faithfulness
-    faithful = faithfulness(generated_response, retrieved_context)
-    
-    # Relevancy (e.g., using ROUGE or BLEU)
-    scorer = rouge_scorer.RougeScorer(['rouge1'], use_stemmer=True)
-    relevancy_score = scorer.score(ground_truth_response, generated_response)['rouge1'].fmeasure
-    
-    # Optional BLEU score for additional insight
-    bleu_score = sentence_bleu([ground_truth_response.split()], generated_response.split())
-    
-    return {
-        "Context Recall": recall,
-        "Faithfulness": faithful,
-        "Answer Relevancy": relevancy_score,
-        "BLEU Score": bleu_score
-    }
-
-# Example usage for testing
-if __name__ == "__main__":
-    # Mock inputs
-    ground_truth_context = "This is the ground truth context."
-    retrieved_context = "This is the retrieved context."
-    ground_truth_response = "This is the ground truth response."
-    generated_response = "This is the generated response."
-
-    # Call the function
-    metrics = calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response)
-    print(metrics)
-
+        # Define the calculate_metrics function
+    def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
+            # Context Precision and Recall
+            
+            recall = context_recall(ground_truth_context, retrieved_context)
+            
+            # Faithfulness
+            faithful = faithfulness(generated_response, retrieved_context)
+            
+            # Relevancy (e.g., using ROUGE or BLEU)
+            scorer = rouge_scorer.RougeScorer(['rouge1'], use_stemmer=True)
+            relevancy_score = scorer.score(ground_truth_response, generated_response)['rouge1'].fmeasure
+            
+            # Optional BLEU score for additional insight
+            bleu_score = sentence_bleu([ground_truth_response.split()], generated_response.split())
+            
+            return {
+                
+                "Context Recall": recall,
+                "Faithfulness": faithful,
+                "Answer Relevancy": relevancy_score,
+                "BLEU Score": bleu_score
+            }    
 
     # Sidebar instructions
     st.sidebar.markdown("""
