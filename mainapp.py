@@ -9,7 +9,7 @@ from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import requests  # For making REST API calls
 import mysql.connector
-from ragas.metrics import context_precision, context_recall, faithfulness, relevancy
+from ragas.metrics import context_precision, context_recall, faithfulness
 from rouge_score import rouge_scorer
 from nltk.translate.bleu_score import sentence_bleu
 
