@@ -8,6 +8,41 @@ import openai
 from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import requests  # For making REST API calls
+import mysql.connector
+
+# Load the .env file
+load_dotenv()
+
+def get_db_connection():
+    return mysql.connector.connect(
+        host=os.getenv("DB_HOST"),           # Host from .env
+        user=os.getenv("DB_USER"),           # Username from .env
+        password=os.getenv("DB_PASSWORD"),   # Password from .env
+        database=os.getenv("DB_NAME")        # Database name from .env
+    )
+
+def save_upload_to_db(username, file_name):
+    """Save the username and file name to the uploads table in the MySQL database."""
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor()
+        # SQL query to insert data into the uploads table
+        query = "INSERT INTO uploads (username, file_name) VALUES (%s, %s)"
+        # Execute the query with provided values
+        cursor.execute(query, (username, file_name))
+        connection.commit()  # Commit the transaction
+        print(f"File '{file_name}' successfully uploaded by user '{username}'.")
+    except mysql.connector.Error as err:
+        # Print an error message in case of a database error
+        print(f"Database error: {err}")
+    finally:
+        # Ensure the database connection is closed properly
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+
 
 
 # Load the .env file
