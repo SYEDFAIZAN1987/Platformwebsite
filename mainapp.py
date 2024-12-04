@@ -864,7 +864,7 @@ elif page == "Query Assistant":
     def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
             # Context Precision and Recall
             
-            recall = context_recall(ground_truth_context, retrieved_context)
+        
             
             # Faithfulness
             faithful = faithfulness(generated_response, retrieved_context)
@@ -878,7 +878,7 @@ elif page == "Query Assistant":
             
             return {
                 
-                "Context Recall": recall,
+                
                 "Faithfulness": faithful,
                 "Answer Relevancy": relevancy_score,
                 "BLEU Score": bleu_score
