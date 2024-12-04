@@ -852,29 +852,6 @@ elif page == "Presentation":
         st.write("No Google Slides link provided.")
 
 
-# Define the calculate_metrics function
-    def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
-        # Context Precision and Recall
-        precision = context_precision(ground_truth_context, retrieved_context)
-        recall = context_recall(ground_truth_context, retrieved_context)
-        
-        # Faithfulness
-        faithful = faithfulness(generated_response, retrieved_context)
-        
-        # Relevancy (e.g., using ROUGE or BLEU)
-        scorer = rouge_scorer.RougeScorer(['rouge1'], use_stemmer=True)
-        relevancy_score = scorer.score(ground_truth_response, generated_response)['rouge1'].fmeasure
-        
-        # Optional BLEU score for additional insight
-        bleu_score = sentence_bleu([ground_truth_response.split()], generated_response.split())
-        
-        return {
-            "Context Precision": precision,
-            "Context Recall": recall,
-            "Faithfulness": faithful,
-            "Answer Relevancy": relevancy_score,
-            "BLEU Score": bleu_score
-        }
 
     
 
@@ -882,6 +859,30 @@ elif page == "Presentation":
 elif page == "Query Assistant":
     st.title("Query Assistant")
     st.sidebar.title("RAG Chatbot")  # Keep Chatbot title on the sidebar only in this page
+
+        # Define the calculate_metrics function
+    def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
+            # Context Precision and Recall
+            precision = context_precision(ground_truth_context, retrieved_context)
+            recall = context_recall(ground_truth_context, retrieved_context)
+            
+            # Faithfulness
+            faithful = faithfulness(generated_response, retrieved_context)
+            
+            # Relevancy (e.g., using ROUGE or BLEU)
+            scorer = rouge_scorer.RougeScorer(['rouge1'], use_stemmer=True)
+            relevancy_score = scorer.score(ground_truth_response, generated_response)['rouge1'].fmeasure
+            
+            # Optional BLEU score for additional insight
+            bleu_score = sentence_bleu([ground_truth_response.split()], generated_response.split())
+            
+            return {
+                "Context Precision": precision,
+                "Context Recall": recall,
+                "Faithfulness": faithful,
+                "Answer Relevancy": relevancy_score,
+                "BLEU Score": bleu_score
+            }    
 
     # Sidebar instructions
     st.sidebar.markdown("""
