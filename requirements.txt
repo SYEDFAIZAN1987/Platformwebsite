@@ -1,3 +1,4 @@
+streamlit==1.40.2
 openai==0.28
 langchain
 pypdf2
@@ -6,6 +7,6 @@ faiss-cpu==1.9.0.post1
 langchain-community
 tiktoken>=0.4.0
 mysql-connector-python
-ragas<0.1.1
+ragas==0.0.19
 rouge-score==0.1.2
 nltk==3.8.1
