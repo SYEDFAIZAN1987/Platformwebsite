@@ -9,9 +9,6 @@ from PyPDF2 import PdfReader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import requests  # For making REST API calls
 import mysql.connector
-from ragas.metrics import context_precision, context_recall, faithfulness
-from rouge_score import rouge_scorer
-from nltk.translate.bleu_score import sentence_bleu
 
 # Load the .env file
 load_dotenv()
@@ -851,28 +848,12 @@ elif page == "Presentation":
     else:
         st.write("No Google Slides link provided.")
 
-
-
     
 
 
 elif page == "Query Assistant":
     st.title("Query Assistant")
     st.sidebar.title("RAG Chatbot")  # Keep Chatbot title on the sidebar only in this page
-
-        # Define the calculate_metrics function
-    def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
-            
-            # Optional BLEU score for additional insight
-            bleu_score = sentence_bleu([ground_truth_response.split()], generated_response.split())
-            
-            return {
-                
-                
-                
-               
-                "BLEU Score": bleu_score
-            }    
 
     # Sidebar instructions
     st.sidebar.markdown("""
@@ -908,15 +889,15 @@ elif page == "Query Assistant":
         vector_store = FAISS.from_texts(chunks, embeddings)
         vector_store.save_local("uploaded_pdf")
 
-        # Define RAG function
-        def rag(query, n_results=5, ground_truth=None):
+        # RAG function
+        def rag(query, n_results=5):
             docs = vector_store.similarity_search(query, k=n_results)
-            retrieved_context = "\n".join([doc.page_content for doc in docs])
-            
+            joined_information = "\n".join([doc.page_content for doc in docs])
+
             # Use structured prompt
             prompt = f"""
             You are a knowledgeable assistant. Use the provided document context to answer the following question:
-            Context: {retrieved_context}
+            Context: {joined_information}
             Question: {query}
             Answer concisely and accurately.
             """
@@ -924,25 +905,13 @@ elif page == "Query Assistant":
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": prompt}]
             )
-            generated_response = response.choices[0].message.content
-            
-            # Calculate metrics if ground truth is provided
-            if ground_truth:
-                metrics = calculate_metrics(
-                    ground_truth_context=ground_truth['context'], 
-                    retrieved_context=retrieved_context, 
-                    ground_truth_response=ground_truth['response'], 
-                    generated_response=generated_response
-                )
-                return generated_response, metrics, docs
-            
-            return generated_response, None, docs
+            return response.choices[0].message.content, docs
 
-        # Chat interface in container
+            # Chat interface in container
         chat_container = st.container()
 
         with chat_container:
-            # Display chat history
+        # Display chat history
             for message in st.session_state.chat_history:
                 if message["role"] == "user":
                     st.markdown(f"<div class='chat-message user-message'>💭 You: {message['content']}</div>", 
@@ -952,9 +921,9 @@ elif page == "Query Assistant":
                     <div class='chat-message assistant-message'>
                         <div style='margin-bottom: 0.5rem;'>📘 Assistant: {message['response']}</div>
                     </div>
-                    """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
-        # If there's a current question in the session state, use it as the default value
+    # If there's a current question in the session state, use it as the default value
         user_query = st.text_input(
             label="Ask your question about the uploaded document",
             help="Type your question or click an example below",
@@ -963,10 +932,11 @@ elif page == "Query Assistant":
             key="unique_user_input_key"  # Assign a unique key
         )
 
-        # Query input with examples
+    # Query input with examples
         st.markdown("<div class='chat-input'>", unsafe_allow_html=True)
 
-        # Example questions as buttons
+
+    # Example questions as buttons
         example_questions = [
             "What are the key findings?",
             "What are the important trends discussed?",
@@ -977,47 +947,52 @@ elif page == "Query Assistant":
         st.markdown("### 💡 Example Questions")
         cols = st.columns(2)
         for idx, question in enumerate(example_questions):
+        # Assign a unique key for each button
             if cols[idx % 2].button(question, key=f"example_question_key_{idx}"):
                 st.session_state.current_question = question  # Set the selected example question
 
-        # Single "Ask" Button Logic
-        if st.button("Ask", type="primary", use_container_width=True):
+    # Single "Ask" Button Logic
+        if st.button("Ask", type="primary", use_container_width=True):  # Ensure only one button
             if not user_query:
                 st.warning("⚠️ Please enter a question!")
             else:
+            # Append user's query to chat history
                 st.session_state.chat_history.append({"role": "user", "content": user_query})
+            
                 with st.spinner("🔍 Analyzing sources..."):
                     try:
-                        # Simulate ground truth for demonstration
-                        ground_truth = {
-                            "context": "Ground truth context here",
-                            "response": "Expected response here"
-                        }
-                        
-                        response, metrics, sources = rag(user_query, ground_truth=ground_truth)
-                        
+                    # Call the RAG function and get response and sources
+                        response, sources = rag(user_query)
+                    
+                    # Append assistant's response to chat history
                         st.session_state.chat_history.append({
                             "role": "assistant",
                             "response": response,
                             "sources": sources
                         })
-                        
-                        # Display metrics
-                        if metrics:
-                            st.write("### Evaluation Metrics")
-                            for metric, value in metrics.items():
-                                st.write(f"**{metric}:** {value:.2f}")
+                    
+                    # Clear the current question after processing
+                        st.session_state.current_question = ''
+                    
+                    # Update app state to refresh UI
+                        st.session_state['force_rerun'] = True  # Trigger UI update
                     except Exception as e:
+                    # Log and display a detailed error message
                         st.error(f"⚠️ An error occurred while processing your query: {str(e)}")
 
-        # Close the chat input container
+    # Close the chat input container
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # Clear chat history button
+
+                        # Clear chat history button
         if st.sidebar.button("Clear Chat History"):
+            # Clear the chat history and reset current question
             st.session_state.chat_history = []
             st.session_state.current_question = ""  # Reset the input box
-            st.rerun()  # Refresh the app
+            st.rerun()  # Immediately refresh the app to reflect changes
+
+
+
 
 st.markdown("""
     <div class="footer-container">
@@ -1080,5 +1055,4 @@ if st.session_state['current_page'] == "Contact the Creator":
             © 2024 Syed Faizan. All rights reserved.
         </div>
     """, unsafe_allow_html=True)
-
 
