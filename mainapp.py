@@ -852,7 +852,7 @@ elif page == "Presentation":
         st.write("No Google Slides link provided.")
 
 
-    # Define the calculate_metrics function
+# Define the calculate_metrics function
     def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
         # Context Precision and Recall
         precision = context_precision(ground_truth_context, retrieved_context)
