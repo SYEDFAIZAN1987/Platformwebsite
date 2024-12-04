@@ -861,17 +861,7 @@ elif page == "Query Assistant":
     st.sidebar.title("RAG Chatbot")  # Keep Chatbot title on the sidebar only in this page
 
         # Define the calculate_metrics function
-    def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response):
-            # Context Precision and Recall
-            
-        
-            
-            # Faithfulness
-            faithful = faithfulness(generated_response, retrieved_context)
-            
-            # Relevancy (e.g., using ROUGE or BLEU)
-            scorer = rouge_scorer.RougeScorer(['rouge1'], use_stemmer=True)
-            relevancy_score = scorer.score(ground_truth_response, generated_response)['rouge1'].fmeasure
+    def calculate_metrics(ground_truth_context, retrieved_context, ground_truth_response, generated_response)
             
             # Optional BLEU score for additional insight
             bleu_score = sentence_bleu([ground_truth_response.split()], generated_response.split())
@@ -879,8 +869,8 @@ elif page == "Query Assistant":
             return {
                 
                 
-                "Faithfulness": faithful,
-                "Answer Relevancy": relevancy_score,
+                
+               
                 "BLEU Score": bleu_score
             }    
 
