@@ -1,0 +1,7 @@
+openai==0.28
+langchain
+pypdf2
+python-dotenv
+faiss-cpu==1.9.0.post1
+langchain-community
+tiktoken>=0.4.0
